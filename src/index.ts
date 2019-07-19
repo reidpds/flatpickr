@@ -107,7 +107,10 @@ function FlatpickrInstance(
       }
       updateValue(false);
     }
-
+    if (self.config.allowInput) {
+        bind(self._input, "blur", onBlur);
+        bind(self._input, "keyup", onKeyUp);
+    }
     setCalendarWidth();
 
     self.showTimeInput =
@@ -1741,6 +1744,43 @@ function FlatpickrInstance(
     }
   }
 
+  function onBlur(e) {
+      var isInput = e.target === self._input;
+      var inputDate = self._input.value;
+      var format = e.target === self.altInput
+          ? self.config.altFormat
+          : self.config.dateFormat;
+      setSelectedDate(inputDate, format);
+      var inputValValid = getDateStr(format) !== '';
+      if (!inputValValid && isInput) {
+          self.clear(false, true)
+      } else if (inputValValid && self.valBeforeOpen !== inputDate) {
+          updateValue(false)
+      }
+  }
+
+  function onKeyUp(e) {
+      var isInput = e.target === self._input;
+      var inputDate = self._input.value;
+      var format = e.target === self.altInput
+          ? self.config.altFormat
+          : self.config.dateFormat;
+      if (e.target.value.includes(' - ')) {
+          e.target.value = e.target.value.replace(' - ', self.l10n.rangeSeparator)
+      }
+      setSelectedDate(inputDate, format);
+      var inputValValid = getDateStr(format) !== '';
+      if (self.config.allowInput && isInput && inputValValid) {
+          self.showTimeInput = self.selectedDates.length > 0;
+          self.latestSelectedDateObj = self.selectedDates[0];
+          self.redraw();
+          jumpToDate();
+          setHoursFromDate();
+          if (getDateStr(format) === self._input.value) {
+              updateValue(true);
+          }
+      }
+  }
   function onMouseOver(elem?: DayElement) {
     if (
       self.selectedDates.length !== 1 ||
@@ -1843,6 +1883,7 @@ function FlatpickrInstance(
     e?: FocusEvent | MouseEvent,
     positionElement = self._positionElement
   ) {
+    self.valBeforeOpen = self._input.value;
     if (self.isMobile === true) {
       if (e) {
         e.preventDefault();

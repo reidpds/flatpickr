@@ -50,6 +50,7 @@ export interface Elements {
   amPM?: HTMLSpanElement;
 
   pluginElements: Node[];
+  valBeforeOpen: string;
 }
 
 export interface Formatting {
