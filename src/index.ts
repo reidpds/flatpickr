@@ -1744,7 +1744,7 @@ function FlatpickrInstance(
     }
   }
 
-  function onBlur(e) {
+  function onBlur(e: any) {
       var isInput = e.target === self._input;
       var inputDate = self._input.value;
       var format = e.target === self.altInput
@@ -1759,7 +1759,7 @@ function FlatpickrInstance(
       }
   }
 
-  function onKeyUp(e) {
+  function onKeyUp(e: any) {
       var isInput = e.target === self._input;
       var inputDate = self._input.value;
       var format = e.target === self.altInput
