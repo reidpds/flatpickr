@@ -111,6 +111,7 @@ export type Instance = Elements &
       format?: string
     ) => void;
     toggle: () => void;
+    _handleTwoDigitYearInput: (inputDate?: any, userInputSplitDateString?: any, e?: any ) => void
 
     pad: (num: string | number) => string;
     parseDate: (

@@ -71,6 +71,7 @@ function FlatpickrInstance(
   self.set = set;
   self.setDate = setDate;
   self.toggle = toggle;
+  self._handleTwoDigitYearInput = _handleTwoDigitYearInput;
 
   function setupHelperFunctions() {
     self.utils = {
@@ -1587,6 +1588,9 @@ function FlatpickrInstance(
     // "ArrowRight" (IE "Right")         39
     // "ArrowDown"  (IE "Down")          40
     // "Delete"     (IE "Del")           46
+    // "Meta"       (IE "Meta")          91
+    // "Ctrl"       (IE "Ctrl")          17
+    // "V"          (IE "V")             86
 
     const isInput = e.target === self._input;
     const allowInput = self.config.allowInput;
@@ -1597,7 +1601,7 @@ function FlatpickrInstance(
       if (allowInput) {
         self.setDate(
           self._input.value,
-          true,
+          false,
           e.target === self.altInput
             ? self.config.altFormat
             : self.config.dateFormat
@@ -1744,31 +1748,64 @@ function FlatpickrInstance(
     }
   }
 
-  function onBlur(e: any) {
-      var isInput = e.target === self._input;
-      var inputDate = self._input.value;
-      var format = e.target === self.altInput
+  function onBlur(e?: any) {
+    var isInput = e.target === self._input;
+    var inputDate = self._input.value;
+    var format = e.target === self.altInput
+        ? self.config.altFormat
+        : self.config.dateFormat;
+    if (self.config.allowInput) {
+      self.setDate(self._input.value, false, e.target === self.altInput
           ? self.config.altFormat
-          : self.config.dateFormat;
+          : self.config.dateFormat);
+      if (self.valBeforeOpen !== '' && inputDate === '') {
+          updateValue(true);
+          self.close();
+          return
+      }
+      else if (self.selectedDates.length < 2 && isInput) {
+          self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+              ? self.config.altFormat
+              : self.config.dateFormat);
+          self.close();
+          return
+      }
       setSelectedDate(inputDate, format);
       var inputValValid = getDateStr(format) !== '';
-      if (!inputValValid && isInput) {
-          self.clear(false, true)
-      } else if (inputValValid && self.valBeforeOpen !== inputDate) {
-          updateValue(false)
+      if (inputValValid && self.valBeforeOpen !== inputDate) {
+          updateValue(true);
+          self.close();
+        }
       }
-  }
+    }
 
-  function onKeyUp(e: any) {
+  function onKeyUp(e?: any) {
+      if (e.keyCode === 8 || e.keyCode === 46) {
+          return
+      }
       var isInput = e.target === self._input;
       var inputDate = self._input.value;
       var format = e.target === self.altInput
           ? self.config.altFormat
           : self.config.dateFormat;
       if (e.target.value.includes(' - ')) {
-          e.target.value = e.target.value.replace(' - ', self.l10n.rangeSeparator)
+          e.target.value = e.target.value.replace(' - ', self.l10n.rangeSeparator);
       }
       setSelectedDate(inputDate, format);
+      var userInputSplitDateString = inputDate.split('/');
+      var inputByPaste = e.keyCode === 91 || e.keyCode === 86 || e.keyCode === 17;
+      if (inputByPaste) {
+          userInputSplitDateString[userInputSplitDateString.length - 1] = String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]))
+          inputDate = userInputSplitDateString.join('/');
+          self._input.value = inputDate;
+          e.target.value = inputDate
+      }
+      if (userInputSplitDateString.length === 3) {
+          self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e)
+      }
+      else if (userInputSplitDateString.length === 5) {
+          self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e)
+      }
       var inputValValid = getDateStr(format) !== '';
       if (self.config.allowInput && isInput && inputValValid) {
           self.showTimeInput = self.selectedDates.length > 0;
@@ -1777,10 +1814,13 @@ function FlatpickrInstance(
           jumpToDate();
           setHoursFromDate();
           if (getDateStr(format) === self._input.value) {
-              updateValue(true);
+              updateValue(false);
           }
-      }
+      } else {
+          self.clear(false, true)
+        }
   }
+
   function onMouseOver(elem?: DayElement) {
     if (
       self.selectedDates.length !== 1 ||
@@ -2652,6 +2692,36 @@ function FlatpickrInstance(
     if (self.isOpen === true) return self.close();
     self.open(e);
   }
+
+    function _handleTwoDigitYearInput(inputDate?: any, userInputSplitDateString?: any, e?: any) {
+        var format = e.target === self.altInput
+            ? self.config.altFormat
+            : self.config.dateFormat;
+        var twoDigitInputYear = userInputSplitDateString[userInputSplitDateString.length - 1];
+        twoDigitInputYear = String(parseInt(twoDigitInputYear));
+        twoDigitInputYear = twoDigitInputYear.length === 2 ? twoDigitInputYear : null;
+        var updatesYearStr, customizedInputDate = null;
+        if (twoDigitInputYear) {
+            var parsedYearStr = String(self.currentYear);
+            if (parsedYearStr.substr(2, 2) !== twoDigitInputYear) {
+                updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
+                if (parsedYearStr) {
+                    customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
+                    e.target.value = customizedInputDate;
+                    setSelectedDate(customizedInputDate, format);
+                    self.redraw();
+                    jumpToDate();
+                    setHoursFromDate()
+                }
+            } else if (parsedYearStr.substr(2, 2) === twoDigitInputYear) {
+                updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
+                customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
+                e.target.value = customizedInputDate;
+                setSelectedDate(customizedInputDate, format)
+            }
+        }
+
+    }
 
   function triggerEvent(event: HookKey, data?: any) {
     // If the instance has been destroyed already, all hooks have been removed
