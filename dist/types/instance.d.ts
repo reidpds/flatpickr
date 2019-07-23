@@ -75,6 +75,7 @@ export declare type Instance = Elements & Formatting & {
     }, value?: any) => void;
     setDate: (date: DateOption | DateOption[], triggerChange?: boolean, format?: string) => void;
     toggle: () => void;
+    _handleTwoDigitYearInput: (inputDate?: any, userInputSplitDateString?: any, e?: any) => void;
     pad: (num: string | number) => string;
     parseDate: (date: Date | string | number, givenFormat?: string, timeless?: boolean) => Date | undefined;
     formatDate: (dateObj: Date, frmt: string) => string;
