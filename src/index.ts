@@ -1620,14 +1620,15 @@ function FlatpickrInstance(
         self.timeContainer.contains(e.target as HTMLElement);
 
       switch (e.keyCode) {
-        case 13:
-          if (isTimeObj) {
-            e.preventDefault();
-            updateTime();
-            focusAndClose();
-          } else selectDate(e);
-
-          break;
+        // TODO(maistrovas): Remove of make it work with our approach. Fix by July 30 2019
+        // case 13:
+        //   if (isTimeObj) {
+        //     e.preventDefault();
+        //     updateTime();
+        //     focusAndClose();
+        //   } else selectDate(e);
+        //
+        //   break;
 
         case 27: // escape
           e.preventDefault();
@@ -1748,34 +1749,38 @@ function FlatpickrInstance(
     }
   }
 
-  function onBlur(e?: any) {
-    var isInput = e.target === self._input;
-    var inputDate = self._input.value;
-    var format = e.target === self.altInput
+  function onBlur (e?: any) {
+      var isInput = e.target === self._input;
+      var inputDate = self._input.value;
+      var format = e.target === self.altInput
         ? self.config.altFormat
         : self.config.dateFormat;
-    if (self.config.allowInput) {
-      self.setDate(self._input.value, false, e.target === self.altInput
+      if (self.config.allowInput) {
+        self.setDate(self._input.value, false, e.target === self.altInput
           ? self.config.altFormat
           : self.config.dateFormat);
-      if (self.valBeforeOpen !== '' && inputDate === '') {
+
+        if (self.valBeforeOpen !== '' && inputDate === '' && isInput) {
           updateValue(true);
+          self.removeUpdate = true;
           self.close();
           return
-      }
-      else if (self.selectedDates.length < 2 && isInput) {
-          self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-              ? self.config.altFormat
-              : self.config.dateFormat);
-          self.close();
-          return
-      }
-      setSelectedDate(inputDate, format);
-      var inputValValid = getDateStr(format) !== '';
-      if (inputValValid && self.valBeforeOpen !== inputDate) {
-          updateValue(true);
-          self.close();
         }
+        setSelectedDate(inputDate, format);
+        var inputValValid = getDateStr(format) !== '';
+        if (inputValValid && self.valBeforeOpen !== inputDate && self.isOpen) {
+          if (self.selectedDates.length === 2) {
+            updateValue(true);
+            self.close()
+          } else if (self.selectedDates.length === 1) {
+            updateValue(false)
+          }
+          return
+        }
+        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+          ? self.config.altFormat
+          : self.config.dateFormat);
+        self.close()
       }
     }
 
@@ -1924,6 +1929,7 @@ function FlatpickrInstance(
     positionElement = self._positionElement
   ) {
     self.valBeforeOpen = self._input.value;
+    self.removeUpdate = false;
     if (self.isMobile === true) {
       if (e) {
         e.preventDefault();

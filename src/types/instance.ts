@@ -51,6 +51,7 @@ export interface Elements {
 
   pluginElements: Node[];
   valBeforeOpen: string;
+  removeUpdate: boolean;
 }
 
 export interface Formatting {

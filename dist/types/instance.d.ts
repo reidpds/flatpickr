@@ -36,6 +36,7 @@ export interface Elements {
     amPM?: HTMLSpanElement;
     pluginElements: Node[];
     valBeforeOpen: string;
+    removeUpdate: boolean;
 }
 export interface Formatting {
     revFormat: RevFormat;
