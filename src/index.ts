@@ -1606,11 +1606,20 @@ function FlatpickrInstance(
             ? self.config.altFormat
             : self.config.dateFormat
         );
-        if (self.config.mode === "range" && self.selectedDates.length === 1) {
-                        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-                            ? self.config.altFormat
-                            : self.config.dateFormat);
-                    }
+          if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
+              updateValue(true);
+              self.removeUpdate = true;
+              self.close();
+              return
+          }
+          else if (self.config.mode === "range" && self.selectedDates.length === 1) {
+              self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+                  ? self.config.altFormat
+                  : self.config.dateFormat);
+              if (self.isOpen) {
+                  self.close();
+              }
+          }
         return (e.target as HTMLElement).blur();
       } else {
         self.open();
@@ -1773,7 +1782,7 @@ function FlatpickrInstance(
         }
         setSelectedDate(inputDate, format);
         var inputValValid = getDateStr(format) !== '';
-        if (inputValValid && self.valBeforeOpen !== inputDate && self.isOpen) {
+        if (inputValValid && self.valBeforeOpen !== inputDate) {
           if (self.selectedDates.length === 2) {
             updateValue(true);
             self.close()
