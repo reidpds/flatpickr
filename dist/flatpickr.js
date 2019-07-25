@@ -1621,10 +1621,19 @@
                     self.setDate(self._input.value, false, e.target === self.altInput
                         ? self.config.altFormat
                         : self.config.dateFormat);
-                    if (self.config.mode === "range" && self.selectedDates.length === 1) {
+                    if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
+                        updateValue(true);
+                        self.removeUpdate = true;
+                        self.close();
+                        return;
+                    }
+                    else if (self.config.mode === "range" && self.selectedDates.length === 1) {
                         self.setDate(self.valBeforeOpen, false, e.target === self.altInput
                             ? self.config.altFormat
                             : self.config.dateFormat);
+                        if (self.isOpen) {
+                            self.close();
+                        }
                     }
                     return e.target.blur();
                 }
@@ -1769,7 +1778,7 @@
                 }
                 setSelectedDate(inputDate, format);
                 var inputValValid = getDateStr(format) !== '';
-                if (inputValValid && self.valBeforeOpen !== inputDate && self.isOpen) {
+                if (inputValValid && self.valBeforeOpen !== inputDate) {
                     if (self.selectedDates.length === 2) {
                         updateValue(true);
                         self.close();
@@ -1777,13 +1786,14 @@
                     else if (self.selectedDates.length === 1) {
                         updateValue(false);
                     }
-                    return;
                 }
-                self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-                    ? self.config.altFormat
-                    : self.config.dateFormat);
-                if (self.isOpen) {
-                    self.close();
+                else if (self.valBeforeOpen.length > inputDate.length) {
+                    self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+                        ? self.config.altFormat
+                        : self.config.dateFormat);
+                    if (self.isOpen) {
+                        self.close();
+                    }
                 }
             }
         }
