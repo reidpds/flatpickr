@@ -1815,10 +1815,10 @@ function FlatpickrInstance(
       if (self.config.allowInput && isInput && inputValValid) {
           self.showTimeInput = self.selectedDates.length > 0;
           self.latestSelectedDateObj = self.selectedDates[0];
-          self.redraw();
           jumpToDate();
           setHoursFromDate();
-          if (getDateStr(format) === self._input.value) {
+          var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+          if (getDateStr(format) === self._input.value && !isSafari) {
               updateValue(false);
           }
       } else {
@@ -2715,7 +2715,6 @@ function FlatpickrInstance(
                     customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
                     e.target.value = customizedInputDate;
                     setSelectedDate(customizedInputDate, format);
-                    self.redraw();
                     jumpToDate();
                     setHoursFromDate()
                 }
