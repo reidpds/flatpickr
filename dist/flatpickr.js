@@ -1621,6 +1621,11 @@
                     self.setDate(self._input.value, false, e.target === self.altInput
                         ? self.config.altFormat
                         : self.config.dateFormat);
+                    if (self.config.mode === "range" && self.selectedDates.length === 1) {
+                        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+                            ? self.config.altFormat
+                            : self.config.dateFormat);
+                    }
                     return e.target.blur();
                 }
                 else {
@@ -1777,7 +1782,9 @@
                 self.setDate(self.valBeforeOpen, false, e.target === self.altInput
                     ? self.config.altFormat
                     : self.config.dateFormat);
-                self.close();
+                if (self.isOpen) {
+                    self.close();
+                }
             }
         }
         function onKeyUp(e) {
@@ -1796,7 +1803,8 @@
             var userInputSplitDateString = inputDate.split('/');
             var inputByPaste = e.keyCode === 91 || e.keyCode === 86 || e.keyCode === 17;
             if (inputByPaste) {
-                userInputSplitDateString[userInputSplitDateString.length - 1] = String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]));
+                var cleanedInputYear = String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]));
+                userInputSplitDateString[userInputSplitDateString.length - 1] = cleanedInputYear;
                 inputDate = userInputSplitDateString.join('/');
                 self._input.value = inputDate;
                 e.target.value = inputDate;
@@ -1811,10 +1819,10 @@
             if (self.config.allowInput && isInput && inputValValid) {
                 self.showTimeInput = self.selectedDates.length > 0;
                 self.latestSelectedDateObj = self.selectedDates[0];
-                self.redraw();
                 jumpToDate();
                 setHoursFromDate();
-                if (getDateStr(format) === self._input.value) {
+                var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                if (getDateStr(format) === self._input.value && !isSafari) {
                     updateValue(false);
                 }
             }
@@ -2468,7 +2476,6 @@
                         customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
                         e.target.value = customizedInputDate;
                         setSelectedDate(customizedInputDate, format);
-                        self.redraw();
                         jumpToDate();
                         setHoursFromDate();
                     }
