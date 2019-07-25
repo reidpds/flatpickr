@@ -1780,13 +1780,14 @@ function FlatpickrInstance(
           } else if (self.selectedDates.length === 1) {
             updateValue(false)
           }
-          return
         }
-        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-          ? self.config.altFormat
-          : self.config.dateFormat);
-        if (self.isOpen){
-            self.close();
+        else if (self.valBeforeOpen.length > inputDate.length) {
+            self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+                ? self.config.altFormat
+                : self.config.dateFormat);
+            if (self.isOpen) {
+                self.close();
+            }
         }
       }
     }
