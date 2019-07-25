@@ -1606,6 +1606,11 @@ function FlatpickrInstance(
             ? self.config.altFormat
             : self.config.dateFormat
         );
+        if (self.config.mode === "range" && self.selectedDates.length === 1) {
+                        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+                            ? self.config.altFormat
+                            : self.config.dateFormat);
+                    }
         return (e.target as HTMLElement).blur();
       } else {
         self.open();
@@ -1780,7 +1785,9 @@ function FlatpickrInstance(
         self.setDate(self.valBeforeOpen, false, e.target === self.altInput
           ? self.config.altFormat
           : self.config.dateFormat);
-        self.close()
+        if (self.isOpen){
+            self.close();
+        }
       }
     }
 
@@ -1800,7 +1807,8 @@ function FlatpickrInstance(
       var userInputSplitDateString = inputDate.split('/');
       var inputByPaste = e.keyCode === 91 || e.keyCode === 86 || e.keyCode === 17;
       if (inputByPaste) {
-          userInputSplitDateString[userInputSplitDateString.length - 1] = String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]))
+          var cleanedInputYear =  String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]));
+          userInputSplitDateString[userInputSplitDateString.length - 1] = cleanedInputYear;
           inputDate = userInputSplitDateString.join('/');
           self._input.value = inputDate;
           e.target.value = inputDate
