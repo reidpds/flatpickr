@@ -1775,6 +1775,9 @@ function FlatpickrInstance(
           : self.config.dateFormat);
 
         if (self.valBeforeOpen !== '' && inputDate === '' && isInput) {
+          if (self.removeUpdate === true){ // case when Enter was pressed
+                return;
+              }
           updateValue(true);
           self.removeUpdate = true;
           self.close();
