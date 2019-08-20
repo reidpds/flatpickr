@@ -1783,7 +1783,6 @@ function FlatpickrInstance(
           self.close();
           return
         }
-        setSelectedDate(inputDate, format);
         var inputValValid = getDateStr(format) !== '';
         if (inputValValid && self.valBeforeOpen !== inputDate) {
           if (self.selectedDates.length === 2) {
