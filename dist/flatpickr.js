@@ -1763,6 +1763,8 @@
         function onBlur(e) {
             var isInput = e.target === self._input;
             var inputDate = self._input.value;
+            if (inputDate === 'REMOVE')
+                return;
             var format = e.target === self.altInput
                 ? self.config.altFormat
                 : self.config.dateFormat;
