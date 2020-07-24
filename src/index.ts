@@ -2721,32 +2721,38 @@ function FlatpickrInstance(
   }
 
     function _handleTwoDigitYearInput(inputDate?: any, userInputSplitDateString?: any, e?: any) {
-        var format = e.target === self.altInput
-            ? self.config.altFormat
-            : self.config.dateFormat;
+        var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
         var twoDigitInputYear = userInputSplitDateString[userInputSplitDateString.length - 1];
+        var timeInput;
+        if (self.config.enableTime && twoDigitInputYear.split(' ').length > 1) {
+            twoDigitInputYear = twoDigitInputYear.split(' ')[0];
+            timeInput = userInputSplitDateString[userInputSplitDateString.length - 1].split(' ').slice(1).join(' ')
+        }
         twoDigitInputYear = String(parseInt(twoDigitInputYear));
         twoDigitInputYear = twoDigitInputYear.length === 2 ? twoDigitInputYear : null;
-        var updatesYearStr, customizedInputDate = null;
+        var updatesYearStr, parsedYearStr, customizedInputDate = null;
         if (twoDigitInputYear) {
-            var parsedYearStr = String(self.currentYear);
+            parsedYearStr = String(self.currentYear);
+            updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
+            if (self.config.enableTime && (timeInput !== undefined)) {
+                customizedInputDate = inputDate.substring(0, inputDate.split(' ')[0].length - 2) + updatesYearStr + ' ' + timeInput;
+            } else {
+                customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr
+            }
+
             if (parsedYearStr.substr(2, 2) !== twoDigitInputYear) {
-                updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
                 if (parsedYearStr) {
-                    customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
                     e.target.value = customizedInputDate;
                     setSelectedDate(customizedInputDate, format);
                     jumpToDate();
                     setHoursFromDate()
                 }
-            } else if (parsedYearStr.substr(2, 2) === twoDigitInputYear) {
-                updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
-                customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
+            }
+            else if (parsedYearStr.substr(2, 2) === twoDigitInputYear) {
                 e.target.value = customizedInputDate;
-                setSelectedDate(customizedInputDate, format)
+                setSelectedDate(customizedInputDate, format);
             }
         }
-
     }
 
   function triggerEvent(event: HookKey, data?: any) {
