@@ -1826,12 +1826,6 @@ function FlatpickrInstance(
           self._input.value = inputDate;
           e.target.value = inputDate
       }
-      if (userInputSplitDateString.length === 3) {
-          self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e)
-      }
-      else if (userInputSplitDateString.length === 5) {
-          self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e)
-      }
       var inputValValid = getDateStr(format) !== '';
       if (self.config.allowInput && isInput && inputValValid) {
           self.showTimeInput = self.selectedDates.length > 0;
