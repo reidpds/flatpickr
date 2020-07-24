@@ -2723,6 +2723,7 @@ function FlatpickrInstance(
             timeInput = userInputSplitDateString[userInputSplitDateString.length - 1].split(' ').slice(1).join(' ')
         }
         twoDigitInputYear = String(parseInt(twoDigitInputYear));
+        var fourDigitYear = twoDigitInputYear.length === 4;
         twoDigitInputYear = twoDigitInputYear.length === 2 ? twoDigitInputYear : null;
         var updatesYearStr, parsedYearStr, customizedInputDate = null;
         if (twoDigitInputYear) {
@@ -2739,13 +2740,18 @@ function FlatpickrInstance(
                     e.target.value = customizedInputDate;
                     setSelectedDate(customizedInputDate, format);
                     jumpToDate();
-                    setHoursFromDate()
+                    setHoursFromDate();
+                    updateValue(true);
                 }
             }
             else if (parsedYearStr.substr(2, 2) === twoDigitInputYear) {
                 e.target.value = customizedInputDate;
                 setSelectedDate(customizedInputDate, format);
+                updateValue(true);
             }
+        } else if (fourDigitYear) {
+            setSelectedDate(inputDate, format);
+            updateValue(true);
         }
     }
 
