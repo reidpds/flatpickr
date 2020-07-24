@@ -1813,7 +1813,7 @@ function FlatpickrInstance(
       var format = e.target === self.altInput
           ? self.config.altFormat
           : self.config.dateFormat;
-      if (e.target.value.includes(' - ')) {
+      if (e.target.value.includes(' - ') && self.config.mode === "range") {
           e.target.value = e.target.value.replace(' - ', self.l10n.rangeSeparator);
       }
       setSelectedDate(inputDate, format);
