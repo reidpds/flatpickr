@@ -840,6 +840,47 @@ describe("flatpickr", () => {
 
     });
 
+    it("onKeyDown: timestamp in input saved but date only visible when click outside", () => {
+      jest.runAllTimers();
+      createInstance({
+        allowInput: true,
+        enableTime: true,
+        defaultHour: 0,
+        mode: 'single',
+        time_24hr:  false,
+        dateFormat: 'm/d/Y h:i K',
+        onValueUpdate: function (selectedDates, dateStr, instance) {
+          console.debug(selectedDates);
+          console.debug(dateStr);
+          instance.dateChanged = true
+        }
+      });
+        // TODO: Make test pass
+      fp.open();
+      fp.input.focus();
+      fp._input.value = "2-2-23 5:11 AM";
+
+      simulate("keydown", fp.input, {
+        // "Return/Enter"
+        keyCode: 13,
+        ctrlKey: true,
+      });
+
+      expect(fp.selectedDates[0].getFullYear()).toBe(2023);
+      expect(fp.selectedDates[0].getHours()).toBe(5);
+      expect(fp.selectedDates[0].getMinutes()).toBe(11);
+
+      fp.amPM && expect(fp.amPM.innerHTML).toBe("AM");
+
+      fp.input.blur();
+
+      expect(fp.selectedDates[0].getFullYear()).toBe(2023);
+      expect(fp.selectedDates[0].getHours()).toBe(5);
+      expect(fp.selectedDates[0].getMinutes()).toBe(11);
+      expect(fp._input.value).toBe('02/02/2023');
+
+    });
+
     it("enabling dates by function", () => {
       createInstance({
         enable: [d => d.getDate() === 6, new Date()],
