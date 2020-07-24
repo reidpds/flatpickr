@@ -1599,29 +1599,29 @@ function FlatpickrInstance(
 
     if (e.keyCode === 13 && isInput) {
       if (allowInput) {
-        self.setDate(
-          self._input.value,
-          false,
-          e.target === self.altInput
-            ? self.config.altFormat
-            : self.config.dateFormat
-        );
-          if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
-              updateValue(true);
-              self.removeUpdate = true;
-              self.close();
-              return
-          }
-          else if (self.config.mode === "range" && self.selectedDates.length === 1) {
-              self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-                  ? self.config.altFormat
-                  : self.config.dateFormat);
-              if (self.isOpen) {
-                  self.close();
-              }
-          }
+        var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
+        var divider = self._input.value.includes('-') ? '-' : '/';
+        var userInputSplitDateString = self._input.value.split(divider);
+        if (userInputSplitDateString.length === 3 || userInputSplitDateString.length === 5) {
+            self._handleTwoDigitYearInput(self._input.value, userInputSplitDateString, e);
+        } else {
+            self.setDate(self._input.value, false, format);
+        }
+
+        if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
+            updateValue(true);
+            self.removeUpdate = true;
+            self.close();
+            return;
+        }
+        else if (self.config.mode === "range" && self.selectedDates.length === 1) {
+            self.setDate(self.valBeforeOpen, false, format);
+            if (self.isOpen) {
+                self.close();
+            }
+        }
         return (e.target as HTMLElement).blur();
-      } else {
+    } else {
         self.open();
       }
     } else if (
