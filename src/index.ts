@@ -1788,15 +1788,7 @@ function FlatpickrInstance(
             self.close();
           }
         }
-        if (self.config.mode === "single"
-          && self.selectedDates.length === 1
-          && !self.isOpen
-          && inputValValid
-          && self.config.allowInput
-          && self.config.enableTime) {
-            self._input.value = self._input.value.split(' ')[0]
-            }
-        }
+    }
   }
 
   function onKeyUp(e?: any) {
