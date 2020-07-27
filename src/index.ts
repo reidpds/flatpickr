@@ -1634,16 +1634,6 @@ function FlatpickrInstance(
         self.timeContainer.contains(e.target as HTMLElement);
 
       switch (e.keyCode) {
-        // TODO(maistrovas): Remove of make it work with our approach. Fix by July 30 2019
-        // case 13:
-        //   if (isTimeObj) {
-        //     e.preventDefault();
-        //     updateTime();
-        //     focusAndClose();
-        //   } else selectDate(e);
-        //
-        //   break;
-
         case 27: // escape
           e.preventDefault();
           focusAndClose();
