@@ -1607,7 +1607,6 @@ function FlatpickrInstance(
         } else {
             self.setDate(self._input.value, false, format);
         }
-
         if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
             updateValue(true);
             self.removeUpdate = true;
@@ -1806,7 +1805,7 @@ function FlatpickrInstance(
       setSelectedDate(inputDate, format);
       var userInputSplitDateString = inputDate.split('/');
       var inputByPaste = e.keyCode === 91 || e.keyCode === 86 || e.keyCode === 17;
-      if (inputByPaste) {
+      if (inputByPaste && self.config.enableTime === false) {
           var cleanedInputYear =  String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]));
           userInputSplitDateString[userInputSplitDateString.length - 1] = cleanedInputYear;
           inputDate = userInputSplitDateString.join('/');
@@ -2740,6 +2739,7 @@ function FlatpickrInstance(
             setSelectedDate(inputDate, format);
             updateValue(true);
         }
+
     }
 
   function triggerEvent(event: HookKey, data?: any) {
