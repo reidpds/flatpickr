@@ -1753,46 +1753,51 @@ function FlatpickrInstance(
     }
   }
 
-  function onBlur (e?: any) {
-      var isInput = e.target === self._input;
-      var inputDate = self._input.value;
-      if (inputDate === 'REMOVE') return;
-      var format = e.target === self.altInput
-        ? self.config.altFormat
-        : self.config.dateFormat;
-      if (self.config.allowInput) {
-        self.setDate(self._input.value, false, e.target === self.altInput
-          ? self.config.altFormat
-          : self.config.dateFormat);
-
-        if (self.valBeforeOpen !== '' && inputDate === '' && isInput) {
-          if (self.removeUpdate === true){ // case when Enter was pressed
-                return;
-              }
+  function onBlur(e?: any) {
+    var isInput = e.target === self._input;
+    var inputDate = self._input.value;
+    if (inputDate === 'REMOVE')
+        return;
+    var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
+    if (self.config.allowInput) {
+      self.setDate(self._input.value, false, e.target === self.altInput ? self.config.altFormat : self.config.dateFormat);
+      if (self.valBeforeOpen !== '' && inputDate === '' && isInput) {
+        if (self.removeUpdate === true) { // case when Enter was pressed
+          return;
+          }
           updateValue(true);
           self.removeUpdate = true;
           self.close();
-          return
+          return;
         }
         var inputValValid = getDateStr(format) !== '';
         if (inputValValid && self.valBeforeOpen !== inputDate) {
           if (self.selectedDates.length === 2) {
             updateValue(true);
-            self.close()
-          } else if (self.selectedDates.length === 1) {
-            updateValue(false)
+            self.close();
+          }
+          else if (self.selectedDates.length === 1) {
+            updateValue(false);
           }
         }
         else if (self.valBeforeOpen.length > inputDate.length) {
-            self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-                ? self.config.altFormat
-                : self.config.dateFormat);
-            if (self.isOpen) {
-                self.close();
+          self.setDate(self.valBeforeOpen, false, e.target === self.altInput
+            ? self.config.altFormat
+            : self.config.dateFormat);
+          if (self.isOpen) {
+            self.close();
+          }
+        }
+        if (self.config.mode === "single"
+          && self.selectedDates.length === 1
+          && !self.isOpen
+          && inputValValid
+          && self.config.allowInput
+          && self.config.enableTime) {
+            self._input.value = self._input.value.split(' ')[0]
             }
         }
-      }
-    }
+  }
 
   function onKeyUp(e?: any) {
       if (e.keyCode === 8 || e.keyCode === 46) {
