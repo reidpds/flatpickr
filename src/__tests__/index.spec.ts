@@ -871,7 +871,6 @@ describe("flatpickr", () => {
           }
         }
       });
-        // TODO: Make test pass
       fp.open();
       fp.input.focus();
       fp._input.value = "2-2-23 5:11 AM";
