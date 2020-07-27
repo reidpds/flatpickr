@@ -37,6 +37,7 @@ export interface Elements {
     pluginElements: Node[];
     valBeforeOpen: string;
     removeUpdate: boolean;
+    dateChanged: boolean;
 }
 export interface Formatting {
     revFormat: RevFormat;
