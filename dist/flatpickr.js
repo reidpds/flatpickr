@@ -1618,9 +1618,15 @@
             var allowInlineKeydown = self.config.inline && isInput && !allowInput;
             if (e.keyCode === 13 && isInput) {
                 if (allowInput) {
-                    self.setDate(self._input.value, false, e.target === self.altInput
-                        ? self.config.altFormat
-                        : self.config.dateFormat);
+                    var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
+                    var divider = self._input.value.includes('-') ? '-' : '/';
+                    var userInputSplitDateString = self._input.value.split(divider);
+                    if (userInputSplitDateString.length === 3 || userInputSplitDateString.length === 5) {
+                        self._handleTwoDigitYearInput(self._input.value, userInputSplitDateString, e);
+                    }
+                    else {
+                        self.setDate(self._input.value, false, format);
+                    }
                     if (self.valBeforeOpen !== '' && self._input.value === '' && isInput) {
                         updateValue(true);
                         self.removeUpdate = true;
@@ -1628,9 +1634,7 @@
                         return;
                     }
                     else if (self.config.mode === "range" && self.selectedDates.length === 1) {
-                        self.setDate(self.valBeforeOpen, false, e.target === self.altInput
-                            ? self.config.altFormat
-                            : self.config.dateFormat);
+                        self.setDate(self.valBeforeOpen, false, format);
                         if (self.isOpen) {
                             self.close();
                         }
@@ -1647,15 +1651,6 @@
                 var isTimeObj = !!self.timeContainer &&
                     self.timeContainer.contains(e.target);
                 switch (e.keyCode) {
-                    // TODO(maistrovas): Remove of make it work with our approach. Fix by July 30 2019
-                    // case 13:
-                    //   if (isTimeObj) {
-                    //     e.preventDefault();
-                    //     updateTime();
-                    //     focusAndClose();
-                    //   } else selectDate(e);
-                    //
-                    //   break;
                     case 27: // escape
                         e.preventDefault();
                         focusAndClose();
@@ -1765,13 +1760,9 @@
             var inputDate = self._input.value;
             if (inputDate === 'REMOVE')
                 return;
-            var format = e.target === self.altInput
-                ? self.config.altFormat
-                : self.config.dateFormat;
+            var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
             if (self.config.allowInput) {
-                self.setDate(self._input.value, false, e.target === self.altInput
-                    ? self.config.altFormat
-                    : self.config.dateFormat);
+                self.setDate(self._input.value, false, e.target === self.altInput ? self.config.altFormat : self.config.dateFormat);
                 if (self.valBeforeOpen !== '' && inputDate === '' && isInput) {
                     if (self.removeUpdate === true) { // case when Enter was pressed
                         return;
@@ -1810,24 +1801,18 @@
             var format = e.target === self.altInput
                 ? self.config.altFormat
                 : self.config.dateFormat;
-            if (e.target.value.includes(' - ')) {
+            if (e.target.value.includes(' - ') && self.config.mode === "range") {
                 e.target.value = e.target.value.replace(' - ', self.l10n.rangeSeparator);
             }
             setSelectedDate(inputDate, format);
             var userInputSplitDateString = inputDate.split('/');
             var inputByPaste = e.keyCode === 91 || e.keyCode === 86 || e.keyCode === 17;
-            if (inputByPaste) {
+            if (inputByPaste && self.config.enableTime === false) {
                 var cleanedInputYear = String(parseInt(userInputSplitDateString[userInputSplitDateString.length - 1]));
                 userInputSplitDateString[userInputSplitDateString.length - 1] = cleanedInputYear;
                 inputDate = userInputSplitDateString.join('/');
                 self._input.value = inputDate;
                 e.target.value = inputDate;
-            }
-            if (userInputSplitDateString.length === 3) {
-                self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e);
-            }
-            else if (userInputSplitDateString.length === 5) {
-                self._handleTwoDigitYearInput(inputDate, userInputSplitDateString, e);
             }
             var inputValValid = getDateStr(format) !== '';
             if (self.config.allowInput && isInput && inputValValid) {
@@ -2475,31 +2460,44 @@
             self.open(e);
         }
         function _handleTwoDigitYearInput(inputDate, userInputSplitDateString, e) {
-            var format = e.target === self.altInput
-                ? self.config.altFormat
-                : self.config.dateFormat;
+            var format = e.target === self.altInput ? self.config.altFormat : self.config.dateFormat;
             var twoDigitInputYear = userInputSplitDateString[userInputSplitDateString.length - 1];
+            var timeInput;
+            if (self.config.enableTime && twoDigitInputYear.split(' ').length > 1) {
+                twoDigitInputYear = twoDigitInputYear.split(' ')[0];
+                timeInput = userInputSplitDateString[userInputSplitDateString.length - 1].split(' ').slice(1).join(' ');
+            }
             twoDigitInputYear = String(parseInt(twoDigitInputYear));
+            var fourDigitYear = twoDigitInputYear.length === 4;
             twoDigitInputYear = twoDigitInputYear.length === 2 ? twoDigitInputYear : null;
-            var updatesYearStr, customizedInputDate = null;
+            var updatesYearStr, parsedYearStr, customizedInputDate = null;
             if (twoDigitInputYear) {
-                var parsedYearStr = String(self.currentYear);
+                parsedYearStr = String(self.currentYear);
+                updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
+                if (self.config.enableTime && (timeInput !== undefined)) {
+                    customizedInputDate = inputDate.substring(0, inputDate.split(' ')[0].length - 2) + updatesYearStr + ' ' + timeInput;
+                }
+                else {
+                    customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
+                }
                 if (parsedYearStr.substr(2, 2) !== twoDigitInputYear) {
-                    updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
                     if (parsedYearStr) {
-                        customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
                         e.target.value = customizedInputDate;
                         setSelectedDate(customizedInputDate, format);
                         jumpToDate();
                         setHoursFromDate();
+                        updateValue(true);
                     }
                 }
                 else if (parsedYearStr.substr(2, 2) === twoDigitInputYear) {
-                    updatesYearStr = parsedYearStr.substr(0, 2) + twoDigitInputYear;
-                    customizedInputDate = inputDate.substring(0, inputDate.length - 2) + updatesYearStr;
                     e.target.value = customizedInputDate;
                     setSelectedDate(customizedInputDate, format);
+                    updateValue(true);
                 }
+            }
+            else if (fourDigitYear) {
+                setSelectedDate(inputDate, format);
+                updateValue(true);
             }
         }
         function triggerEvent(event, data) {
