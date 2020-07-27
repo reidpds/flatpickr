@@ -853,6 +853,22 @@ describe("flatpickr", () => {
           console.debug(selectedDates);
           console.debug(dateStr);
           instance.dateChanged = true
+        },
+        onClose: function (selectedDates, dateStr, instance) {
+            console.debug(selectedDates);
+            console.debug(dateStr);
+            if (instance.config.mode === "single"
+            && selectedDates.length === 1
+            && instance.config.enableTime
+            && instance.config.allowInput) {
+            instance._setHoursFromDate(instance.selectedDates[0]);
+
+            function updateInput() {
+              instance._input.value = instance._input.value.split(' ')[0]
+            }
+            updateInput()
+
+          }
         }
       });
         // TODO: Make test pass
@@ -873,6 +889,7 @@ describe("flatpickr", () => {
       fp.amPM && expect(fp.amPM.innerHTML).toBe("AM");
 
       fp.input.blur();
+      fp.close();
 
       expect(fp.selectedDates[0].getFullYear()).toBe(2023);
       expect(fp.selectedDates[0].getHours()).toBe(5);
